@@ -2,12 +2,16 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/admin_emails.dart';
+import 'package:demo_modul4/app/routes/app_routes.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   final isLoading = false.obs;
+
+  // 🔥 Tambahkan ini untuk fitur show/hide password
+  final passwordHidden = true.obs;
 
   final supabase = Supabase.instance.client;
 
@@ -34,7 +38,7 @@ class LoginController extends GetxController {
       if (adminEmails.contains(userEmail)) {
         Get.offAllNamed('/admin-menu');
       } else {
-        Get.offAllNamed('/menu');
+        Get.offAllNamed(Routes.MAIN);
       }
 
     } catch (e) {
@@ -45,14 +49,11 @@ class LoginController extends GetxController {
   }
 
   void logout() async {
-  try {
-    await Supabase.instance.client.auth.signOut();
-    Get.offAllNamed('/login'); // kembali ke halaman login
-  } catch (e) {
-    Get.snackbar("Error", "Gagal logout: $e");
+    try {
+      await Supabase.instance.client.auth.signOut();
+      Get.offAllNamed('/login');
+    } catch (e) {
+      Get.snackbar("Error", "Gagal logout: $e");
+    }
   }
-}
-
-
-  
 }

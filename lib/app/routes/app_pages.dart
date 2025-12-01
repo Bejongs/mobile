@@ -36,6 +36,17 @@ import '../ui/admin_menu/bindings/admin_menu_binding.dart';
 import '../ui/admin_menu/views/admin_menu_view.dart';
 
 import '../middleware/auth_middleware.dart';
+
+import '../ui/main/views/main_view.dart';
+import '../ui/main/bindings/main_binding.dart';
+
+import '../ui/api_test/bindings/api_test_bindings.dart';
+import '../ui/api_test/views/api_test_view.dart';
+
+import '../ui/location/views/location_home_view.dart';
+import '../ui/location/bindings/location_binding.dart';
+
+
 class AppPages {
   AppPages._();
 
@@ -51,21 +62,24 @@ class AppPages {
       ],
     ),
 
-
-
     GetPage(
       name: Routes.LOGIN,
       page: () => LoginView(),
       binding: LoginBinding(),
     ),
 
-
-
     GetPage(
       name: Routes.REGISTER,
       page: () => RegisterView(),
       binding: RegisterBinding(),
     ),
+
+    GetPage(
+      name: Routes.MAIN,
+      page: () => MainView(),
+      binding: MainBinding(),
+    ),
+
     GetPage(
       name: Routes.ADMIN_MENU,
       page: () => AdminMenuView(),
@@ -73,12 +87,12 @@ class AppPages {
       middlewares: [AuthMiddleware()],
     ),
 
-    // notes
     GetPage(
       name: '/notes',
       page: () => NotesView(),
       binding: NotesBinding(),
     ),
+
     GetPage(
       name: '/notes/edit',
       page: () => NoteEditView(),
@@ -98,17 +112,32 @@ class AppPages {
       binding: KeranjangBinding(),
       middlewares: [AuthMiddleware()],
     ),
+
     GetPage(
       name: Routes.CHECKOUT,
       page: () => CheckoutView(),
       binding: CheckoutBinding(),
       middlewares: [AuthMiddleware()],
     ),
+    
     GetPage(
       name: Routes.PROFIL,
       page: () => ProfilView(),
       binding: ProfilBinding(),
       middlewares: [AuthMiddleware()],
     ),
+
+    GetPage(
+      name: Routes.API_TEST,
+      page: () => ApiTestView(),
+      binding: ApiTestBinding(),
+    ),
+
+    GetPage(
+      name: Routes.LOCATION,
+      page: () => const LocationHomeView(),
+      binding: LocationBinding(),
+    ),
+
   ];
 }
