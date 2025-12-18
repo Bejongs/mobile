@@ -1,39 +1,46 @@
-import 'dart:async';
-
+import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AuthProvider {
-  final SupabaseClient _client = Supabase.instance.client;
+class AuthProvider extends GetxController {
+  final _auth = Supabase.instance.client.auth;
 
-  Future<void> signUp(String email, String password) async {
-    try {
-      // set timeout supaya tidak hang selamanya
-      final future = _client.auth.signUp(email: email, password: password);
-      await future.timeout(const Duration(seconds: 15));
-      // note: signUp seringkali tidak membuat session (tergantung setting)
-      // kita anggap jika tidak ada exception maka request dikirimkan.
-    } on TimeoutException {
-      throw Exception('Permintaan memakan waktu terlalu lama. Coba lagi.');
-    } catch (e) {
-      // lemparkan pesan error agar controller yang menampilkannya
-      throw Exception(e.toString());
+  final RxString _userName = ''.obs;
+  final RxString _userEmail = ''.obs;
+  final RxString _userId = ''.obs;
+
+  // ===== GETTER YANG DIPAKAI UI & CONTROLLER =====
+  String get userName => _userName.value;
+  String get userEmail => _userEmail.value;
+  String get currentUserId => _userId.value;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadUser();
+  }
+
+  void loadUser() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      _userId.value = user.id;
+      _userEmail.value = user.email ?? '';
+      _userName.value =
+          user.userMetadata?['name'] ??
+          user.email?.split('@').first ??
+          'User';
     }
   }
 
-  Future<void> signIn(String email, String password) async {
-    try {
-      await _client.auth.signInWithPassword(email: email, password: password)
-          .timeout(const Duration(seconds: 15));
-      final user = _client.auth.currentUser;
-      if (user == null) throw Exception('Login gagal: tidak ada sesi.');
-    } on TimeoutException {
-      throw Exception('Permintaan memakan waktu terlalu lama. Coba lagi.');
-    } catch (e) {
-      throw Exception(e.toString());
-    }
+  // ===== LOGOUT UTAMA =====
+  Future<void> logout() async {
+    await _auth.signOut();
+    await Hive.box('auth').clear();
+    Get.offAllNamed('/login');
   }
 
-  Future<void> signOut() async => _client.auth.signOut();
-
-  String? get currentUserId => _client.auth.currentUser?.id;
+  // ===== ALIAS AGAR TIDAK ERROR =====
+  Future<void> signOut() async {
+    await logout();
+  }
 }

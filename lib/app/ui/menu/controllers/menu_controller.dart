@@ -1,56 +1,45 @@
-// lib/app/ui/menu/controllers/menu_controller.dart
-
 import 'package:get/get.dart';
-import 'package:demo_modul4/app/data/models/menu_model.dart';
-import 'package:demo_modul4/app/data/models/cart_item_model.dart';
-import 'package:demo_modul4/app/data/providers/menu_provider.dart';
-import 'package:demo_modul4/app/data/providers/cart_provider.dart';
+import '../../../data/models/menu_model.dart';
+import '../../../data/models/cart_item_model.dart';
+import '../../../data/providers/menu_provider.dart';
+import '../../../data/providers/cart_provider.dart';
 
-class MenuController extends GetxController {
-  final MenuProvider _menuProvider = MenuProvider();
-  late CartProvider cart; // aman karena diisi di onInit
+class MenuPageController extends GetxController {
+  final MenuProvider menuProvider = Get.find<MenuProvider>();
+  final CartProvider cartProvider = Get.find<CartProvider>();
 
-  final menus = <MenuModel>[].obs;
-  final isLoading = false.obs;
+  final RxBool _isLoading = true.obs;
+  final RxList<MenuModel> _menus = <MenuModel>[].obs;
+
+  bool get isLoading => _isLoading.value;
+  List<MenuModel> get menus => _menus;
 
   @override
   void onInit() {
     super.onInit();
-    cart = Get.find<CartProvider>(); // ambil instance yg sudah dibuat di main.dart
-    fetchMenus();
+    loadMenus();
   }
 
-  Future<void> fetchMenus() async {
-    isLoading.value = true;
-    menus.value = await _menuProvider.getMenus();
-    isLoading.value = false;
-  }
-
-  Future<void> addToCart(MenuModel menu) async {
+  Future<void> loadMenus() async {
+    _isLoading.value = true;
     try {
-      // Pastikan Hive box sudah terbuka
-      await cart.init();
-
-      final item = CartItemModel(
-        menuId: menu.id,
-        menuName: menu.name,
-        quantity: 1,
-        price: menu.price,
-      );
-
-      await cart.addToCart(item);
-
-      Get.snackbar(
-        'Berhasil',
-        '${menu.name} ditambahkan ke keranjang',
-        duration: Duration(seconds: 2),
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Gagal',
-        'Gagal menambahkan: $e',
-        duration: Duration(seconds: 3),
-      );
+      final result = await menuProvider.getMenus();
+      _menus.assignAll(result);
+    } finally {
+      _isLoading.value = false;
     }
+  }
+
+  // ✅ METHOD YANG ERROR TADI
+  void addToCart(MenuModel menu) {
+    final item = CartItemModel(
+      menuId: menu.id,           // STRING
+      menuName: menu.name,
+      imageUrl: menu.imageUrl,
+      price: menu.price,
+      qty: 1
+    );
+
+    cartProvider.addItem(item);
   }
 }

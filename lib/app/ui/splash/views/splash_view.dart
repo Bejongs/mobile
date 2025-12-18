@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../controllers/splash_controller.dart';
 
 class SplashView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 1), () async {
+    Future.delayed(const Duration(seconds: 1), () {
       final session = Supabase.instance.client.auth.currentSession;
+      final authBox = Hive.box('auth');
+      final rememberMe = authBox.get('remember_me', defaultValue: false);
 
-      if (session == null) {
-        Get.offAllNamed('/login');      // belum login
+      if (rememberMe && session != null) {
+        Get.offAllNamed('/main');   // sudah login & ingat saya
       } else {
-        Get.offAllNamed('/menu');       // sudah login → user
+        Get.offAllNamed('/login');  // belum / tidak ingat saya
       }
     });
 
@@ -21,4 +23,3 @@ class SplashView extends StatelessWidget {
     );
   }
 }
-

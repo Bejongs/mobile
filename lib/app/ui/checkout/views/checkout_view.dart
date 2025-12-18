@@ -1,69 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../../data/providers/cart_provider.dart';
-import '../../../data/models/cart_item_model.dart';
+import '../../../widgets/cart_item_card.dart';
+import '../../../core/notification/notification_service.dart';
 
 class CheckoutView extends StatelessWidget {
-  final cartProvider = Get.find<CartProvider>();
+  const CheckoutView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final cart = Get.find<CartProvider>();
+
     return Scaffold(
-      appBar: AppBar(title: Text("Checkout")),
-
-      body: FutureBuilder(
-        future: cartProvider.getAll(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-
-          final items = snapshot.data as List<CartItemModel>;
-
-          if (items.isEmpty) {
-            return Center(child: Text("Keranjang masih kosong"));
-          }
-
-          return ListView.builder(
-            padding: EdgeInsets.all(16),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return Card(
-                child: ListTile(
-                  title: Text(item.menuName),
-                  subtitle: Text("Qty: ${item.quantity}"),
-                  trailing: Text("Rp ${item.totalPrice}"),
-                ),
-              );
-            },
-          );
-        },
+      appBar: AppBar(
+        title: const Text("Checkout"),
+        backgroundColor: const Color(0xFFFF4B26),
       ),
+      body: Obx(() {
+        if (cart.items.isEmpty) {
+          return const Center(
+            child: Text("Keranjang kosong"),
+          );
+        }
 
-      bottomNavigationBar: FutureBuilder(
-        future: cartProvider.getAll(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return SizedBox();
-
-          final items = snapshot.data as List<CartItemModel>;
-          final total = items.fold<int>(0, (sum, item) => sum + item.totalPrice);
-
-          return Container(
-            padding: EdgeInsets.all(16),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 55),
-                shape: StadiumBorder(),
+        return Column(
+          children: [
+            // 🛒 LIST ITEM
+            Expanded(
+              child: ListView.builder(
+                itemCount: cart.items.length,
+                itemBuilder: (context, index) {
+                  final item = cart.items[index];
+                  return CartItemCard(item: item);
+                },
               ),
-              onPressed: items.isEmpty
-                  ? null
-                  : () {
-                      Get.snackbar("Pembayaran", "Berhasil membayar Rp $total");
-                    },
-              child: Text("Bayar · Rp $total"),
             ),
-          );
-        },
-      ),
+
+            // 💰 TOTAL & BAYAR
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total: Rp ${cart.totalPrice}",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF4B26),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                    ),
+                    onPressed: () async {
+                      // 🔔 NOTIFIKASI + SUARA
+                      
+                      // 🧹 CLEAR CART
+                      cart.clear();
+
+                      // 🔙 KEMBALI KE MAIN
+                      Get.offAllNamed('/main');
+
+                      // 📢 FEEDBACK UI
+                      Get.snackbar(
+                        "Berhasil",
+                        "Pesanan berhasil dibuat",
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    },
+                    child: const Text(
+                      "Bayar",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

@@ -6,6 +6,7 @@ class Routes {
   static const REGISTER = '/register';
   static const MAIN = '/main';
   static const MENU = '/menu';
+  static const ORDER_HISTORY = '/order-history';
   static const KERANJANG = '/keranjang';
   static const CHECKOUT = '/checkout';
   static const PROFIL = '/profil';

@@ -24,12 +24,12 @@ class CartItemCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(onPressed: onDecrement, icon: const Icon(Icons.remove)),
-            Text('${item.quantity}'),
+            Text('${item.qty}'),
             IconButton(onPressed: onIncrement, icon: const Icon(Icons.add)),
           ],
         ),
         title: Text(item.menuName),
-        subtitle: Text('Rp ${item.price} • Subtotal: Rp ${item.totalPrice}'),
+        subtitle: Text('Rp ${item.price} • Subtotal: Rp ${item.total}'),
         trailing: IconButton(onPressed: onRemove, icon: const Icon(Icons.delete)),
       ),
     );

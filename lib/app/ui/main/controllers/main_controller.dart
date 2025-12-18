@@ -4,17 +4,14 @@ import '../../order/views/order_history_view.dart';
 import '../../profil/views/profil_view.dart';
 
 class MainController extends GetxController {
-  // Index tab yang aktif
-  var index = 0.obs;
+  final index = 0.obs;
 
-  // Halaman yang akan ditampilkan pada body
-  final pages = const [
+  final pages = [
     MenuView(),
-    OrderHistoryView(),
+    OrderHistoryView(), // ✅ RIWAYAT ADA DI SINI
     ProfilView(),
   ];
 
-  // Mengubah tab
   void changeTab(int i) {
     index.value = i;
   }

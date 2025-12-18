@@ -1,34 +1,39 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../data/providers/auth_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterController extends GetxController {
-  final AuthProvider _auth = AuthProvider();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  final email = ''.obs;
-  final password = ''.obs;
+  final supabase = Supabase.instance.client;
   final isLoading = false.obs;
 
   Future<void> doRegister() async {
-    if (email.value.trim().isEmpty || password.value.isEmpty) {
-      Get.snackbar('Gagal', 'Email dan password harus diisi');
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      Get.snackbar("Error", "Email dan password wajib diisi");
       return;
     }
 
     try {
       isLoading.value = true;
-      await _auth.signUp(email.value.trim(), password.value);
-      
-      // Jika signUp tidak melempar error, beri tahu user (bisa jadi perlu verifikasi email)
-      Get.snackbar('Sukses', 'Akun terdaftar. Silakan cek email untuk verifikasi (jika diperlukan).');
-      // kembali ke login setelah beberapa saat atau segera:
+      await supabase.auth.signUp(email: email, password: password);
+      Get.snackbar("Berhasil", "Akun berhasil dibuat");
       Get.offAllNamed('/login');
-    } catch (e, st) {
-      // tampilkan pesan error yang jelas & log stacktrace untuk debug
-      debugPrint('Register error: $e\n$st');
-      Get.snackbar('Registrasi gagal', e.toString());
+    } catch (e) {
+      Get.snackbar("Register gagal", e.toString());
     } finally {
       isLoading.value = false;
     }
+  }
+
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
   }
 }

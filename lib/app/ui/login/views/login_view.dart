@@ -2,195 +2,150 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
 
-class LoginView extends StatelessWidget {
-  LoginView({Key? key}) : super(key: key);
-
-  final LoginController c = Get.find<LoginController>();
+class LoginView extends GetView<LoginController> {
+  const LoginView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F4), // warna krem ala GoFood
-
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // ========================
-            // HEADER ORANYE MELENGKUNG
-            // ========================
-            Container(
-              height: 260,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFF4B26),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(
-                    Icons.fastfood_rounded,
-                    color: Colors.white,
-                    size: 80,
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    "Selamat Datang",
-                    style: TextStyle(
-                      fontSize: 26,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    "Masuk untuk mulai pesan!",
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
+      body: Stack(
+        children: [
+          // 🔹 BACKGROUND
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.png'),
+                fit: BoxFit.cover,
               ),
             ),
+          ),
 
-            const SizedBox(height: 30),
-
-            // ========================
-            // FORM LOGIN
-            // ========================
-            Padding(
+          // 🔹 ISI LOGIN
+          SafeArea(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // EMAIL LABEL
+                  const SizedBox(height: 60),
+
+                  // 🔹 LOGO
+                  Image.asset(
+                    'assets/images/logo.png',
+                    width: 120,
+                  ),
+
+                  const SizedBox(height: 24),
+
                   const Text(
-                    "Email",
+                    "Masuk ke dalam akun anda",
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF222222),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black, // karena background gelap
                     ),
                   ),
-                  const SizedBox(height: 8),
 
-                  // EMAIL FIELD
+                  const SizedBox(height: 32),
+
+                  // EMAIL
                   TextField(
-                    controller: c.emailController,
-                    keyboardType: TextInputType.emailAddress,
+                    controller: controller.emailController,
                     decoration: InputDecoration(
-                      hintText: "Masukkan email",
+                      hintText: "Email",
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
-                  // PASSWORD LABEL
-                  const Text(
-                    "Password",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF222222),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // PASSWORD FIELD
+                  // PASSWORD
                   Obx(() => TextField(
-                        controller: c.passwordController,
-                        obscureText: c.passwordHidden.value,
+                        controller: controller.passwordController,
+                        obscureText: controller.passwordHidden.value,
                         decoration: InputDecoration(
-                          hintText: "Masukkan password",
-                          filled: true,
-                          fillColor: Colors.white,
-                          prefixIcon: const Icon(Icons.lock_outline),
+                          hintText: "Password",
                           suffixIcon: IconButton(
                             icon: Icon(
-                              c.passwordHidden.value
+                              controller.passwordHidden.value
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.grey[700],
                             ),
-                            onPressed: () => c.passwordHidden.toggle(),
+                            onPressed: controller.togglePassword,
                           ),
+                          filled: true,
+                          fillColor: Colors.white,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                         ),
                       )),
 
-                  const SizedBox(height: 35),
+                  const SizedBox(height: 12),
 
-                  // ========================
-                  // BUTTON LOGIN BESAR ORANYE
-                  // ========================
-                  Obx(() {
-                    return SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton(
-                        onPressed: c.isLoading.value ? null : c.doLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF4B26),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                  // REMEMBER ME
+                  Obx(() => Row(
+                        children: [
+                          Checkbox(
+                            value: controller.rememberMe.value,
+                            onChanged: (val) =>
+                                controller.toggleRemember(val!),
                           ),
-                          textStyle: const TextStyle(
-                            fontSize: 18,
+                          const Text(
+                            "Ingat Saya",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      )),
+
+                  const SizedBox(height: 16),
+
+                  // BUTTON LOGIN
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: controller.doLogin,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text("Masuk"),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Belum punya akun? ",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      GestureDetector(
+                        onTap: () => Get.toNamed('/register'),
+                        child: const Text(
+                          "Daftar",
+                          style: TextStyle(
+                            color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        child: c.isLoading.value
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text("Masuk"),
                       ),
-                    );
-                  }),
-
-                  const SizedBox(height: 18),
-
-                  // ========================
-                  // LINK REGISTER
-                  // ========================
-                  Center(
-                    child: TextButton(
-                      onPressed: () => Get.toNamed('/register'),
-                      child: const Text(
-                        "Belum punya akun? Daftar",
-                        style: TextStyle(
-                          color: Color(0xFFFF4B26),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
-
-                  const SizedBox(height: 10),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

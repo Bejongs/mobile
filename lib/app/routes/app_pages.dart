@@ -11,6 +11,7 @@ import '../ui/register/bindings/register_binding.dart';
 
 // MENU
 import '../ui/menu/views/menu_view.dart';
+import '../ui/menu/views/menu_detail_view.dart';
 import '../ui/menu/bindings/menu_binding.dart';
 
 // KERANJANG
@@ -45,6 +46,9 @@ import '../ui/api_test/views/api_test_view.dart';
 
 import '../ui/location/views/location_home_view.dart';
 import '../ui/location/bindings/location_binding.dart';
+
+import '../ui/order/bindings/order_history_binding.dart';
+import '../ui/order/views/order_history_view.dart';
 
 
 class AppPages {
@@ -107,10 +111,22 @@ class AppPages {
     ),
 
     GetPage(
+      name: '/menu-detail',
+      page: () => MenuDetailView(),
+      binding: MenuBinding(),
+    ),
+
+    GetPage(
       name: Routes.KERANJANG,
       page: () => KeranjangView(),
       binding: KeranjangBinding(),
       middlewares: [AuthMiddleware()],
+    ),
+
+    GetPage(
+      name: Routes.ORDER_HISTORY,
+      page: () => OrderHistoryView(),
+      binding: OrderHistoryBinding(),
     ),
 
     GetPage(
